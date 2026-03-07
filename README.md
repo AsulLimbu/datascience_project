@@ -51,15 +51,6 @@ holidays_df = fetch_nepal_holidays()
 
 Open `notebooks/01_eda_energy_data.ipynb` in Jupyter.
 
-## Team Responsibilities
-
-| Member | Role | Focus Areas |
-|--------|------|-------------|
-| Member 1 | Data Engineer | ETL pipeline, database, scheduling |
-| Member 2 | Data Wrangler | Feature engineering, cleaning, optimization |
-| Member 3 | ML Engineer | Model building, training, evaluation |
-| Member 4 | Visualization | Dashboard, reports, storytelling |
-
 ## Data Sources
 
 - **Energy Data**: Nepal Electricity Authority (NEA) Monthly Operation Reports
