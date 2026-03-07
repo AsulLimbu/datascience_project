@@ -1,1 +1,8 @@
 .venv
+.claude
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+data/raw/
+data/processed/
+reports/*.png
