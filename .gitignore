@@ -6,3 +6,15 @@ __pycache__/
 data/raw/
 data/processed/
 reports/*.png
+
+# LaTeX build files
+build/
+*.aux
+*.log
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.out
+*.toc
+*.nav
+*.snm

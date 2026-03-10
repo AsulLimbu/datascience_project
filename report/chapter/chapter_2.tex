@@ -1,0 +1,76 @@
+\chapter{Literature Review}
+    \section{Energy Demand Forecasting: An Overview}
+        Energy demand forecasting has been a critical research area in power systems engineering for decades. Accurate predictions of electricity consumption are essential for grid stability, economic dispatch, capacity planning, and infrastructure investment decisions. The field has evolved from simple statistical methods to sophisticated machine learning approaches as computing power has increased and more data has become available.
+
+        Traditional forecasting methods include time series approaches such as ARIMA (AutoRegressive Integrated Moving Average), exponential smoothing, and regression-based models. These methods rely on historical patterns and assume that future demand follows similar trends. While effective for stable systems with clear patterns, they often struggle to capture non-linear relationships and external factors such as weather variations and special events.
+
+        Hong et al. \cite{hong2016probabilistic} provide a comprehensive framework for energy forecasting, emphasizing the importance of understanding the underlying drivers of electricity demand. Their work highlights that accurate forecasts require integration of multiple data sources including weather, economic indicators, and calendar effects. This multi-faceted approach forms the foundation of modern energy forecasting systems.
+
+    \section{Machine Learning in Energy Forecasting}
+        The application of machine learning to energy forecasting has grown significantly in recent years. Machine learning models can capture complex, non-linear relationships between input features and energy demand that traditional statistical methods may miss.
+
+        \subsection{Linear Models}
+        Linear regression and its regularized variants remain widely used for energy forecasting due to their simplicity and interpretability. Ridge regression, which adds L2 regularization to linear regression, helps prevent overfitting when dealing with multicollinear features—a common situation in energy data where temperature, humidity, and time features may be correlated. The work of Hong et al. \cite{hong2015glternet} demonstrates that regularized linear models can achieve competitive performance while maintaining model interpretability.
+
+        \subsection{Tree-Based Ensemble Methods}
+        Random Forest and Gradient Boosting methods have shown excellent performance in energy forecasting applications. Random Forest, introduced by Breiman \cite{breiman2001random}, creates an ensemble of decision trees and averages their predictions, reducing overfitting while capturing non-linear patterns. Wang et al. \cite{wang2018application} demonstrated that Random Forest outperformed traditional statistical methods for short-term load forecasting in a regional power grid.
+
+        XGBoost (Extreme Gradient Boosting), developed by Chen and Guestrin \cite{chen2016xgboost}, has become one of the most popular algorithms for tabular data. Its sequential ensemble approach, combined with regularization and efficient implementation, has made it a top choice in energy forecasting competitions. The algorithm's ability to handle missing values and its built-in feature importance make it particularly suitable for energy applications.
+
+    \section{Weather Integration in Load Forecasting}
+        Weather is one of the most significant factors affecting electricity demand. Temperature, in particular, has a strong influence on heating and cooling loads. The relationship between temperature and demand typically follows a U-shaped curve, with lowest demand at moderate temperatures and increasing demand for both heating (low temperatures) and cooling (high temperatures).
+
+        The work of Apadula et al. \cite{apadula2012relationships} analyzed the relationship between weather variables and electricity demand in Italy, finding that temperature explains a significant portion of demand variability. Their study emphasized the importance of including multiple weather variables including humidity, wind speed, and solar radiation for accurate predictions.
+
+        In tropical and subtropical regions, the temperature-demand relationship may differ from temperate climates. Nepal's varied topography, ranging from tropical plains to Himalayan peaks, creates diverse weather patterns that influence energy consumption in complex ways. The integration of location-specific weather data is therefore crucial for accurate forecasting.
+
+    \section{Feature Engineering for Time Series Forecasting}
+        Effective feature engineering is often more important than model selection for energy forecasting applications. Lag features, which capture the relationship between current and past values, are particularly important for time series prediction.
+
+        \subsection{Temporal Features}
+        Time-based features including hour of day, day of week, month, and season capture regular patterns in energy consumption. Weekend and holiday effects are significant, with industrial demand typically decreasing on non-working days while residential patterns may shift.
+
+        \subsection{Lag Features}
+        The previous day's demand is typically the strongest predictor of current demand, as energy consumption patterns tend to persist from day to day. Rolling averages and moving statistics help smooth noise and capture medium-term trends. The work of Lago et al. \cite{lago2018modeling} demonstrated that carefully designed lag features significantly improve forecasting accuracy.
+
+    \section{Energy Forecasting in Developing Countries}
+        Energy forecasting in developing countries presents unique challenges and opportunities. Unlike developed nations with mature markets and extensive historical data, developing countries often face data quality issues, rapidly changing consumption patterns, and limited computational resources.
+
+        \subsection{Challenges}
+        Rapid urbanization, expanding electrification, and changing economic conditions create non-stationary demand patterns that challenge traditional forecasting methods. Additionally, technical losses, theft, and metering issues can affect data quality and model performance.
+
+        \subsection{Opportunities}
+        The leapfrogging of technology in developing countries creates opportunities for modern forecasting approaches. Smart meter deployment, while still limited, provides more granular data than traditional monthly billing records. The availability of free weather APIs and open-source machine learning libraries reduces barriers to implementing sophisticated forecasting systems.
+
+        Studies in countries such as India, Bangladesh, and Kenya have demonstrated that machine learning approaches can significantly improve forecasting accuracy compared to traditional methods, even with limited data resources \cite{singh2012application, rahman2020electricity}.
+
+    \section{Nepal's Energy Sector}
+        Nepal's electricity sector is dominated by hydropower, which accounts for over 90\% of domestic generation. The seasonal nature of hydropower—high generation during monsoon months and reduced output in winter—creates unique challenges for supply-demand balance.
+
+        Nepal Electricity Authority (NEA) publishes Monthly Operation Reports containing daily generation and consumption data. These reports, available in PDF format, provide valuable data for forecasting applications but require extraction and processing before analysis.
+
+        Cross-border electricity trade with India plays an increasingly important role in Nepal's power system. During dry months, Nepal imports electricity to meet demand, while surplus hydropower generation during monsoon is exported. Accurate demand forecasting is essential for optimizing these import/export decisions.
+
+    \section{Existing Tools and Platforms}
+        Several open-source tools and platforms are available for energy forecasting:
+
+        \subsection{Python Ecosystem}
+        Python has become the dominant language for data science and machine learning, with libraries such as pandas for data manipulation, scikit-learn for machine learning, and XGBoost for gradient boosting. These tools provide accessible, well-documented interfaces for building forecasting models.
+
+        \subsection{Weather Data Sources}
+        Open-Meteo provides free access to historical and forecast weather data without requiring an API key. This accessibility makes it particularly suitable for research projects and applications in regions where commercial weather data may be cost-prohibitive.
+
+        \subsection{PDF Extraction}
+        Libraries such as pdfplumber enable extraction of tabular data from PDF files, making it possible to process NEA's Monthly Operation Reports programmatically rather than through manual data entry.
+
+    \section{Gap Analysis}
+        Despite extensive research in energy forecasting, several gaps exist:
+
+        \begin{itemize}
+            \item Limited application of machine learning methods to Nepal's energy forecasting challenges
+            \item Lack of integrated systems combining PDF data extraction, weather integration, and ML modeling
+            \item Insufficient documentation of feature engineering approaches specific to developing country contexts
+            \item Need for reproducible, open-source forecasting frameworks that can be adapted to local conditions
+        \end{itemize}
+
+        This project addresses these gaps by developing a comprehensive, end-to-end energy forecasting system specifically designed for Nepal's context, using publicly available data and open-source tools.

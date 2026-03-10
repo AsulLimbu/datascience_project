@@ -1,0 +1,104 @@
+\addcontentsline{toc}{section}{Appendix}
+\large
+\begingroup
+	\let\clearpage\relax
+	\chapter*{Appendix}
+\endgroup
+\normalsize
+
+\section{How to Run the Project}
+
+\subsection*{Prerequisites}
+\begin{itemize}
+	\item Python 3.10 or higher
+	\item pip package manager
+\end{itemize}
+
+\subsection*{Environment Setup}
+\begin{verbatim}
+# Create virtual environment
+python -m venv .venv
+
+# Windows
+.venv\Scripts\activate
+
+# Linux/Mac
+source .venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+\end{verbatim}
+
+\subsection*{Project Structure}
+\begin{verbatim}
+datascience_project/
+|-- data/
+|   |-- NMOR*.pdf              # NEA Monthly Reports
+|   |-- raw/                   # Scraped data
+|   |-- processed/             # Cleaned datasets
+|-- notebooks/
+|   |-- 01_eda_energy_data.ipynb
+|   |-- 02_prediction_model.ipynb
+|-- src/
+|   |-- scraper/
+|   |   |-- weather_scraper.py
+|   |   |-- holiday_scraper.py
+|-- models/
+|   |-- best_model.joblib
+|   |-- scaler.joblib
+|-- reports/
+|-- requirements.txt
+\end{verbatim}
+
+\subsection*{Running the Pipeline}
+\begin{verbatim}
+# Step 1: Fetch weather and holiday data
+python -m src.scraper.weather_scraper
+python -m src.scraper.holiday_scraper
+
+# Step 2: Run EDA notebook
+jupyter notebook notebooks/01_eda_energy_data.ipynb
+
+# Step 3: Run prediction model
+jupyter notebook notebooks/02_prediction_model.ipynb
+\end{verbatim}
+
+\subsection*{Using the Saved Model for Predictions}
+\begin{verbatim}
+import joblib
+import pandas as pd
+
+# Load model and scaler
+model = joblib.load('models/best_model.joblib')
+scaler = joblib.load('models/scaler.joblib')
+
+# Prepare input features
+sample_data = {
+    'temp_mean': 25.0, 'temp_max': 30.0, 'temp_min': 20.0,
+    'humidity': 75.0, 'precipitation': 5.0, 'windspeed': 3.5,
+    'temp_range': 10.0, 'day_of_week': 2, 'month': 8,
+    'day_of_year': 220, 'week_of_year': 32, 'quarter': 3,
+    'is_weekend': 0, 'is_holiday': 0, 'season': 3,
+    'demand_lag_1': 32000, 'demand_lag_7': 31500,
+    'demand_rolling_7': 31800
+}
+
+sample_df = pd.DataFrame([sample_data])
+sample_scaled = scaler.transform(sample_df)
+predicted_demand = model.predict(sample_scaled)[0]
+print(f"Predicted Demand: {predicted_demand:,.0f} MWh")
+\end{verbatim}
+
+\section{Requirements File (requirements.txt)}
+\begin{verbatim}
+pandas>=1.5.0
+numpy>=1.23.0
+pdfplumber>=0.9.0
+requests>=2.28.0
+beautifulsoup4>=4.12.0
+matplotlib>=3.6.0
+seaborn>=0.12.0
+scikit-learn>=1.1.0
+xgboost>=1.7.0
+jupyter>=1.0.0
+\end{verbatim}

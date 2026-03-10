@@ -1,0 +1,101 @@
+\chapter{Introduction}
+    \pagenumbering{arabic}
+    \section{Background Introduction}
+        Nepal's electricity sector has undergone significant transformation in recent years, transitioning from chronic power shortages to a period of surplus generation during certain seasons. The Nepal Electricity Authority (NEA), the state-owned power utility, is responsible for generation, transmission, and distribution of electricity throughout the country. As Nepal's electricity demand continues to grow at approximately 7-10\% annually, accurate forecasting of energy consumption has become essential for effective grid management, resource planning, and ensuring reliable power supply to consumers.
+
+        The integration of renewable energy sources, particularly hydropower, into Nepal's grid presents unique challenges for demand forecasting. Hydropower generation is highly dependent on seasonal water availability, with monsoon months seeing peak generation while winter months often require imports from India. Additionally, Nepal's unique geographical and climatic conditions, with varying weather patterns across different regions, significantly influence electricity consumption patterns.
+
+        Traditional approaches to energy demand forecasting in Nepal have relied heavily on historical trends and simple statistical methods. However, the increasing complexity of the power system, growing penetration of renewable energy, and changing consumption patterns necessitate more sophisticated forecasting techniques. Machine learning offers powerful tools for capturing non-linear relationships and complex patterns in energy consumption data that traditional methods may miss.
+
+        The availability of digital data from NEA's Monthly Operation Reports, combined with accessible weather data through APIs, creates an opportunity to develop data-driven forecasting models. This project leverages these data sources to build a comprehensive energy demand forecasting system that can support decision-making in Nepal's power sector.
+
+    \pagebreak
+    \section{Motivation}
+        The motivation behind this project stems from several critical needs in Nepal's energy sector:
+
+        \textbf{Grid Stability and Reliability:} Accurate demand forecasting enables grid operators to maintain the delicate balance between electricity supply and demand. Underestimating demand can lead to load shedding and blackouts, while overestimating results in wasteful generation and unnecessary costs.
+
+        \textbf{Import/Export Optimization:} Nepal imports electricity from India during dry seasons when hydropower generation decreases, and exports surplus power during monsoon months. Precise demand forecasts enable optimal scheduling of these cross-border energy exchanges, minimizing import costs and maximizing export revenues.
+
+        \textbf{Resource Planning:} Long-term capacity planning requires accurate demand projections. Understanding seasonal and daily consumption patterns helps in making informed decisions about new generation investments, transmission infrastructure, and demand-side management programs.
+
+        \textbf{Operational Efficiency:} Daily operational decisions, including unit commitment and economic dispatch, rely on short-term demand forecasts. Better predictions lead to more efficient power plant scheduling and reduced operational costs.
+
+        \textbf{Data-Driven Decision Making:} The increasing availability of energy data and advanced analytics tools presents an opportunity to transform how Nepal's power sector operates. Developing local expertise in energy analytics is crucial for the country's energy security and sustainability.
+
+        This project addresses these needs by developing a practical, reproducible framework for energy demand forecasting using publicly available data and open-source tools.
+
+    \section{Problem Definition}
+        Despite the critical importance of energy demand forecasting, several challenges exist in developing accurate prediction models for Nepal:
+
+        \textbf{Data Accessibility and Quality:} While NEA publishes Monthly Operation Reports, the data exists in PDF format requiring extraction and cleaning. Inconsistent data formats, missing values, and the need to integrate multiple data sources pose significant challenges.
+
+        \textbf{Limited Weather Integration:} Electricity demand is strongly influenced by weather conditions, particularly temperature. Existing forecasting approaches in Nepal often lack systematic integration of weather data into prediction models.
+
+        \textbf{Seasonal and Cultural Factors:} Nepal experiences distinct seasons and celebrates numerous festivals that significantly impact energy consumption patterns. These factors must be incorporated into forecasting models for accurate predictions.
+
+        \textbf{Limited Local Research:} There is a scarcity of research applying modern machine learning techniques to Nepal's energy forecasting challenges. Most existing studies focus on developed countries with different consumption patterns and grid characteristics.
+
+        \textbf{Model Selection and Validation:} With numerous machine learning algorithms available, determining the most suitable approach for Nepal's energy data requires systematic experimentation and validation.
+
+        The core problem addressed in this project is: \textit{How can we develop an accurate and practical energy demand forecasting system for Nepal using publicly available data and machine learning techniques?}
+
+    \pagebreak
+    \section{Goals and Objectives}
+        The main objectives of this project are:
+
+        \begin{itemize}
+            \item \textbf{Data Collection and Integration:} Develop a systematic pipeline to extract energy consumption data from NEA's PDF reports, fetch weather data from Open-Meteo API, and integrate holiday calendar information for comprehensive analysis.
+
+            \item \textbf{Exploratory Data Analysis:} Conduct thorough analysis of energy consumption patterns to identify trends, seasonality, correlations with weather variables, and other factors influencing demand.
+
+            \item \textbf{Feature Engineering:} Create predictive features from temporal, weather, and historical data that capture the key drivers of energy demand in Nepal.
+
+            \item \textbf{Model Development:} Implement and compare multiple machine learning models including Linear Regression, Ridge Regression, Random Forest, and XGBoost for energy demand prediction.
+
+            \item \textbf{Model Evaluation:} Systematically evaluate model performance using appropriate metrics including RMSE, MAE, MAPE, and R$^2$ to identify the best-performing approach.
+
+            \item \textbf{Deployment Framework:} Create a reusable model pipeline with saved models and scalers that can be used for future predictions.
+        \end{itemize}
+
+    \section{Scope and Applications}
+        The scope and applications of this project include:
+
+        \textbf{Scope:}
+        \begin{itemize}
+            \item Analysis of NEA Monthly Operation Reports from July 2022 to March 2024 (18 monthly reports)
+            \item Integration of weather data for Kathmandu and Pokhara regions
+            \item Focus on daily energy demand forecasting (MWh/day)
+            \item Comparison of four machine learning algorithms
+            \item Development of prediction models for short-term forecasting (1-7 days ahead)
+        \end{itemize}
+
+        \textbf{Applications:}
+        \begin{itemize}
+            \item \textbf{Grid Operations:} Support day-ahead and week-ahead demand forecasting for load dispatch centers
+            \item \textbf{Import/Export Planning:} Optimize scheduling of cross-border energy exchange with India
+            \item \textbf{Peak Management:} Identify and prepare for high-demand periods
+            \item \textbf{Policy Support:} Provide data-driven insights for energy policy decisions
+            \item \textbf{Research Foundation:} Establish a baseline for future research in Nepal's energy analytics
+        \end{itemize}
+
+    \section{Report Organization}
+        This report is organized as follows:
+
+        \subsection{Introduction}
+            This chapter introduces Nepal's energy sector, highlights the challenges in demand forecasting, and explains how the proposed system addresses these challenges.
+
+        \subsection{Literature Review}
+            The literature review discusses existing approaches to energy demand forecasting, machine learning techniques in power systems, and related studies in developing countries.
+
+        \subsection{Methodology}
+            It explains the development approach, data pipeline architecture, and project phases followed to design and implement the system.
+
+        \subsection{System Design and Implementation}
+            This chapter describes the system architecture, data collection modules, feature engineering process, and machine learning models implemented.
+
+        \subsection{Results and Analysis}
+            This chapter presents the actual results obtained from model development and evaluation, including performance metrics and visualizations.
+
+        \subsection{Conclusion}
+            The conclusion summarizes the project achievements, key findings, limitations, and suggests possible improvements and extensions to the system.

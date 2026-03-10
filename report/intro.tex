@@ -1,0 +1,129 @@
+\pagenumbering{roman}
+		\addcontentsline{toc}{section}{Certificate of Approval}
+		\large
+			\chapter*{Certificate of Approval}
+		\normalsize
+		    The undersigned certify that the fifth semester project entitled \textbf{"Smart Energy Consumption Forecasting \& Optimization System"} submitted by Asul Limbu, Dipesh Singh, Manee Das Shrestha and Sajan Shrestha to the \textbf{Department of Computer Engineering} in partial fulfillment of requirement for the degree of \textbf{Bachelor of Engineering in Computer Engineering}. The project was carried out under special supervision and within the time frame prescribed by the syllabus. \\
+		    \\
+			We found the students to be hardworking, skilled, bona fide and ready to undertake any commercial and industrial work related to their field of study and hence we recommend the award of Bachelor of Computer Engineering degree. \\
+			\vspace{2cm}
+
+                \noindent
+                \begin{minipage}{0.45\textwidth}
+                .............................................\\
+                Er. Ramesh Prajapati\\
+                (Project Supervisor)
+                \end{minipage}
+                \hfill
+                \begin{minipage}{0.45\textwidth}
+                \raggedleft
+                .............................................\\
+                Er. Sunil Banmala\\
+                (Project Supervisor)
+                \end{minipage}
+
+                \vspace{3cm}
+            \par
+            \noindent
+            .............................................\\
+			Er. Dinesh Gothe\\
+			Head of Department \\
+			Department of Electronics and Computer Engineering, KhCE\\
+		\break
+
+
+
+		\addcontentsline{toc}{section}{Copyright}
+		\large
+			\chapter*{Copyright}
+		\normalsize
+			The author has agreed that the library, Khwopa College of Engineering  may make this report freely available for inspection. Moreover, the author has agreed that permission for the extensive copying of this project report for scholarly purpose may be granted by supervisor who supervised the project work recorded here in or, in absence the Head of The Department where in the project report was done. It is understood that the recognition will be given to the author of the report and to Department of Computer Engineering, KhCE in any use of the material of this project report. Copying or publication or other use of this report for financial gain without approval of the department and author's written permission is prohibited. Request for the permission to copy or to make any other use of material in this report in whole or in part should be addressed to: \\
+			\vspace{1cm} \\
+			Head of Department \\
+			Department of Computer Engineering\\
+			Khwopa College of Engineering\\
+			Liwali,\\
+			Bhaktapur, Nepal\\
+		\break
+
+
+	    \addcontentsline{toc}{section}{Acknowledgement}
+		\large
+			\chapter*{Acknowledgement}
+		\normalsize
+			We take this opportunity to express our deepest and sincere gratitude to our Head of Department, Er. Dinesh Man Gothe, for his insightful guidance, motivating suggestions, and constant encouragement throughout the course of this project. His valuable advice and support helped us gain a clear understanding of the practical aspects of the project and provided us with the confidence to overcome various challenges. We are truly thankful for his continuous guidance and encouragement throughout our Bachelor's program.
+
+			We would also like to express our sincere gratitude to our project supervisors, Er. Ramesh Prajapati and Er. Sunil Banmala, for their invaluable guidance, continuous support, and encouragement throughout this project. Their expertise in data science and machine learning helped shape the direction of our research.
+
+			We are grateful to Nepal Electricity Authority (NEA) for making their Monthly Operation Reports publicly available, which formed the foundation of our data collection. We also acknowledge Open-Meteo for providing free access to historical weather data through their API.
+
+			Finally, we extend our thanks to all faculty members, friends, and family members who supported us during the completion of this project.
+			\vspace{1cm}
+
+			\begin{tabular}{p{2in}p{3in}}
+    			Asul Limbu & KCE080BCT005\\
+    			Dipesh Singh & KCE080BCT008\\
+    			Manee Das Shrestha & KCE080BCT013\\
+    			Sajan Shrestha & KCE080BCT035\\
+    		 \vspace{0.3in}
+    		\end{tabular}
+		\break
+
+		\addcontentsline{toc}{section}{Abstract}
+		\large
+			\chapter*{Abstract}
+		\normalsize
+		Accurate energy demand forecasting is crucial for effective power grid management, resource planning, and import/export decisions in Nepal's electricity sector. This project presents a comprehensive data science approach to analyze and predict electricity consumption patterns using real-world data from Nepal Electricity Authority (NEA) and machine learning techniques.
+
+		The study integrates multiple data sources including daily energy generation and consumption data from NEA Monthly Operation Reports (18 PDF files spanning July 2022 to March 2024), historical weather data from Open-Meteo API (temperature, humidity, precipitation, wind speed), and Nepal's holiday calendar. A complete data pipeline was developed for PDF extraction using pdfplumber, weather data integration through API calls, and feature engineering to create 18 predictive features including temporal features, weather metrics, and lag features for time series modeling.
+
+		Extensive exploratory data analysis revealed significant seasonal patterns in energy demand, with summer months showing peak consumption and distinct weekday-weekend variations. The generation mix analysis showed Independent Power Producers (IPPs) contributing approximately 43\% of Nepal's electricity supply, followed by NEA subsidiaries and NEA's own generation.
+
+		Four machine learning models were developed and compared: Linear Regression, Ridge Regression, Random Forest Regressor, and XGBoost Regressor. The Ridge Regression model achieved the best performance with a coefficient of determination (R$^2$) of 0.899, Mean Absolute Percentage Error (MAPE) of 4.32\%, and Root Mean Square Error (RMSE) of 1,660.94 MWh on the test dataset. The analysis demonstrated that lag features, particularly the previous day's demand and 7-day rolling average, were the most significant predictors of energy demand.
+
+		The developed system provides a reusable framework for energy demand prediction that can support grid operators in planning generation schedules, optimizing cross-border energy exchange with India, and preparing for peak demand periods. The project demonstrates the potential of data-driven approaches in addressing energy sector challenges in developing countries.
+
+        \vspace{1cm}
+		\textbf{Keywords}:\textit{Energy Demand Forecasting, Machine Learning, Time Series Analysis, Nepal Electricity Authority, Ridge Regression, Feature Engineering, Weather Integration, Smart Grid, Data Science}
+
+		\break
+
+		\addcontentsline{toc}{section}{Contents}
+		\tableofcontents
+
+		% \addcontentsline{toc}{section}{List of Tables}
+		% \listoftables
+		\break
+		\pagebreak
+
+		\addcontentsline{toc}{section}{List of Figures}
+		\listoffigures
+		\break
+
+	\addcontentsline{toc}{section}{List of Symbols and Abbreviation}
+        \Large
+            \begingroup
+                \let\clearpage\relax
+                \chapter*{List of Abbreviation}
+            \endgroup
+            \normalsize
+            \begin{table}[h]
+                \begin{center}
+                    \begin{tabular}{l l}
+                        \textbf{Abbreviation} & \textbf{Meaning} \\
+                        API & Application Programming Interface \\
+                        EDA & Exploratory Data Analysis \\
+                        IPP & Independent Power Producer \\
+                        MAE & Mean Absolute Error \\
+                        MAPE & Mean Absolute Percentage Error \\
+                        ML & Machine Learning \\
+                        MWh & Megawatt Hour \\
+                        NEA & Nepal Electricity Authority \\
+                        RMSE & Root Mean Squared Error \\
+                        R$^2$ & Coefficient of Determination \\
+                        XGBoost & Extreme Gradient Boosting \\
+                    \end{tabular}
+                \end{center}
+            \end{table}
+        \break
+        \pagebreak

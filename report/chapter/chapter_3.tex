@@ -1,0 +1,146 @@
+\chapter{Methodology}
+	\section{Development Approach}
+	Building a comprehensive data science project for energy forecasting involves multiple stages including data collection, processing, analysis, and model development. The iterative nature of machine learning projects, where models are continuously improved based on evaluation results, makes an iterative development approach particularly suitable for this project.
+
+	The development process followed these principles:
+	\begin{itemize}
+		\item Starting with a Minimum Viable Product (MVP) focused on basic PDF extraction
+		\item Iteratively adding features such as weather integration and multiple ML models
+		\item Incorporating feedback from evaluation results to improve feature engineering
+		\item Adapting to challenges encountered during data extraction and processing
+	\end{itemize}
+
+	\section{Project Management}
+	Git was used for version control, managing all source code, notebooks, and documentation. The project was organized into clear modules:
+	\begin{itemize}
+		\item \texttt{data/} - Raw and processed datasets
+		\item \texttt{notebooks/} - Jupyter notebooks for EDA and modeling
+		\item \texttt{src/scraper/} - Data collection scripts
+		\item \texttt{models/} - Saved model artifacts
+		\item \texttt{reports/} - Generated visualizations
+	\end{itemize}
+
+	\section{Data Pipeline Architecture}
+	The project follows a layered architecture for data processing and machine learning:
+
+	\subsection{Data Ingestion Layer}
+	The data ingestion layer handles collection of data from multiple sources:
+	\begin{itemize}
+		\item \textbf{NEA Reports:} PDF files containing daily energy generation and consumption data are extracted using pdfplumber
+		\item \textbf{Weather API:} Historical weather data is fetched from Open-Meteo API for temperature, humidity, precipitation, and wind speed
+		\item \textbf{Holiday Calendar:} Nepal's public holidays are scraped from timeanddate.com or generated from known dates
+	\end{itemize}
+
+	\subsection{Data Processing Layer}
+	The processing layer transforms raw data into analysis-ready format:
+	\begin{itemize}
+		\item Type conversion (string to numeric)
+		\item Date parsing and standardization
+		\item Deduplication and sorting
+		\item Missing value handling
+		\item Dataset merging
+	\end{itemize}
+
+	\subsection{Feature Engineering Layer}
+	Features are created to capture the key drivers of energy demand:
+	\begin{itemize}
+		\item Temporal features: day of week, month, quarter, season
+		\item Weather features: temperature metrics, humidity, precipitation
+		\item Lag features: previous day demand, 7-day rolling average
+		\item Binary flags: weekend, holiday
+	\end{itemize}
+
+	\subsection{Machine Learning Layer}
+	The ML layer implements and compares multiple models:
+	\begin{itemize}
+		\item Linear Regression (baseline)
+		\item Ridge Regression (regularized)
+		\item Random Forest (ensemble)
+		\item XGBoost (gradient boosting)
+	\end{itemize}
+
+	\subsection{Output Layer}
+	The output layer generates predictions and visualizations:
+	\begin{itemize}
+		\item Energy demand predictions (MWh/day)
+		\item Model evaluation metrics
+		\item Visualizations for analysis
+	\end{itemize}
+
+	\pagebreak
+	\section{Project Phases}
+	The project was completed in five main phases:
+
+	\subsection{Phase 1: Planning and Data Collection}
+	\begin{itemize}
+		\item Identified data sources (NEA reports, weather APIs)
+		\item Defined project objectives and scope
+		\item Downloaded 18 NEA Monthly Operation Reports (NMOR 2079\_04 to NMOR 2080\_11)
+		\item Developed PDF extraction scripts using pdfplumber
+		\item Fetched weather data from Open-Meteo API for Kathmandu and Pokhara
+		\item Compiled holiday calendar for Nepal (2022-2024)
+	\end{itemize}
+
+	\subsection{Phase 2: Data Processing and EDA}
+	\begin{itemize}
+		\item Cleaned and preprocessed raw data
+		\item Merged energy, weather, and holiday datasets
+		\item Performed exploratory data analysis
+		\item Identified patterns, trends, and correlations
+		\item Generated visualizations
+	\end{itemize}
+
+	\subsection{Phase 3: Feature Engineering}
+	\begin{itemize}
+		\item Designed temporal features (day of week, month, season, quarter)
+		\item Created lag features (previous day demand, 7-day rolling average)
+		\item Implemented feature scaling using StandardScaler
+	\end{itemize}
+
+	\subsection{Phase 4: Model Development}
+	\begin{itemize}
+		\item Implemented Linear Regression and Ridge Regression
+		\item Implemented Random Forest and XGBoost
+		\item Used time-based train-test split (80-20)
+		\item Configured hyperparameters for each model
+	\end{itemize}
+
+	\subsection{Phase 5: Evaluation and Deployment}
+	\begin{itemize}
+		\item Evaluated models using RMSE, MAE, MAPE, R$^2$
+		\item Compared model performance
+		\item Selected the best model (Ridge Regression)
+		\item Saved model artifacts for future predictions
+	\end{itemize}
+
+	\section{Development Tools}
+	The following tools were used throughout the project:
+
+	\begin{table}[h]
+		\begin{center}
+			\begin{tabular}{|l|l|}
+				\hline
+				\textbf{Category} & \textbf{Tools Used} \\
+				\hline
+				Programming & Python 3.11 \\
+				\hline
+				IDE & Jupyter Notebook, VS Code \\
+				\hline
+				Version Control & Git \\
+				\hline
+				Data Manipulation & pandas, numpy \\
+				\hline
+				PDF Extraction & pdfplumber \\
+				\hline
+				Web Scraping & requests, BeautifulSoup \\
+				\hline
+				Visualization & matplotlib, seaborn \\
+				\hline
+				Machine Learning & scikit-learn, XGBoost \\
+				\hline
+				Model Persistence & joblib \\
+				\hline
+			\end{tabular}
+		\end{center}
+		\caption{Development Tools Used}
+	\end{table}

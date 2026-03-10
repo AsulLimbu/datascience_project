@@ -1,0 +1,26 @@
+\documentclass[12pt,a4paper]{report}
+\usepackage[utf8]{inputenc}
+\usepackage[top=1in,bottom=1in,left=1.5in,right=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{amsmath,amssymb,amsfonts,bbm}
+\usepackage[hidelinks]{hyperref}
+\usepackage{cite}
+\usepackage{url}
+\usepackage{hyperref}
+\DeclareUnicodeCharacter{202F}{\,}
+\newcommand\tab[1][1cm]{\hspace*{#1}}
+\begin{document}
+	\include{title}
+    \include{intro}
+    \include{chapter/chapter_1}
+    \include{chapter/chapter_2}
+    \include{chapter/chapter_3}
+    \include{chapter/chapter_4}
+    \include{chapter/chapter_5}
+    \include{chapter/chapter_6}
+    \include{appendix}
+    \bibliographystyle{IEEEtran}
+    \bibliography{ref}
+	\addcontentsline{toc}{section}{Bibliography}
+\end{document}
