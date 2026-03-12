@@ -1170,3 +1170,1175 @@ Solved by using pdfplumber with careful row classification logic based on column
 
 *Document prepared for Smart Energy Consumption Forecasting Project Viva*
 *Group of 4 Members*
+
+---
+
+# Additional Member 4 Practice Questions (Extended Viva Preparation)
+
+## Section D Extended: Deep Dive into Model Evaluation
+
+---
+
+### Q41: Explain the complete evaluation pipeline you followed step by step.
+
+**Answer**:
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    EVALUATION PIPELINE                           │
+├─────────────────────────────────────────────────────────────────┤
+│  Step 1: Train/Test Split                                       │
+│  └── Why: Prevent data leakage, simulate real-world prediction │
+│  └── Method: 80/20 split (396 train, 99 test)                  │
+│  └── Reasoning: Time-series data requires chronological split   │
+│                                                                 │
+│  Step 2: Feature Scaling                                       │
+│  └── Why: Features have different scales (temp vs demand)      │
+│  └── Method: StandardScaler (z-score normalization)            │
+│  └── Reasoning: Ridge Regression is sensitive to feature scales│
+│                                                                 │
+│  Step 3: Model Training                                        │
+│  └── Why: Fit models on training data only                     │
+│  └── Method: Fit Linear, Ridge, RF, XGBoost separately        │
+│  └── Reasoning: Compare different algorithmic approaches       │
+│                                                                 │
+│  Step 4: Prediction on Test Set                                │
+│  └── Why: Evaluate on unseen data for generalization           │
+│  └── Method: model.predict(X_test_scaled)                      │
+│  └── Reasoning: Test set simulates future data                 │
+│                                                                 │
+│  Step 5: Metric Calculation                                    │
+│  └── Why: Quantify model performance                           │
+│  └── Method: RMSE, MAE, MAPE, R² using sklearn.metrics        │
+│  └── Reasoning: Multiple metrics give comprehensive view       │
+│                                                                 │
+│  Step 6: Residual Analysis                                     │
+│  └── Why: Check model assumptions and calibration              │
+│  └── Method: Plot residuals, check normality, patterns        │
+│  └── Reasoning: Identify systematic biases or problems        │
+│                                                                 │
+│  Step 7: Model Selection                                       │
+│  └── Why: Choose best model for deployment                    │
+│  └── Method: Compare all metrics, consider interpretability   │
+│  └── Reasoning: Balance accuracy with simplicity              │
+│                                                                 │
+│  Step 8: Model Persistence                                     │
+│  └── Why: Save model for future predictions                   │
+│  └── Method: joblib.dump() for model and scaler               │
+│  └── Reasoning: Avoid retraining, enable deployment           │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Key Reasoning for Each Step**:
+
+| Step | Why It Matters | What Could Go Wrong If Skipped |
+|------|---------------|-------------------------------|
+| Train/Test Split | Prevents overfitting to training data | Model would appear to perform well but fail on new data |
+| Feature Scaling | Ensures fair comparison across features | Ridge would weight larger-scale features more heavily |
+| Multiple Models | Different algorithms have different strengths | Might miss the best algorithm for the data |
+| Multiple Metrics | Single metric doesn't tell full story | RMSE alone might hide percentage errors |
+| Residual Analysis | Validates model assumptions | Might miss systematic prediction biases |
+| Model Persistence | Enables practical deployment | Would need to retrain every time |
+
+---
+
+### Q42: Why did you choose an 80/20 train-test split instead of cross-validation?
+
+**Answer**:
+**Reasoning for 80/20 Split**:
+
+1. **Time-series nature**: Energy data has temporal dependencies
+   - Random splitting would cause data leakage
+   - Future information would leak into training set
+   - Model would appear unrealistically accurate
+
+2. **Chronological split preserves order**:
+   ```
+   Training: [Jul 2022 -------- Dec 2022 -------- Jun 2023]
+   Test:                                      [Jul 2023 ---- Nov 2023]
+   ```
+
+3. **Why not k-fold cross-validation**:
+   - Standard k-fold randomly shuffles data
+   - Breaks temporal structure
+   - TimeSeriesSplit from sklearn is an alternative but we chose simple holdout for interpretability
+
+4. **Why 80/20 specifically**:
+   - Enough training data (396 samples) for model to learn patterns
+   - Enough test data (99 samples) for reliable evaluation
+   - Industry standard ratio for medium-sized datasets
+
+**Code Implementation**:
+```python
+from sklearn.model_selection import train_test_split
+
+# IMPORTANT: shuffle=False for time series
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y,
+    test_size=0.2,
+    shuffle=False  # CRITICAL: preserves temporal order
+)
+```
+
+**Alternative Approaches**:
+| Approach | When to Use | Pros | Cons |
+|----------|-------------|------|------|
+| Simple Holdout | Small datasets, quick evaluation | Simple, interpretable | Single evaluation may be noisy |
+| TimeSeriesSplit | Robust evaluation needed | Multiple evaluations | More computation |
+| Rolling Window | Streaming data scenarios | Simulates real deployment | Complex implementation |
+
+---
+
+### Q43: Explain RMSE in detail with calculation example.
+
+**Answer**:
+**Root Mean Square Error (RMSE)**:
+
+**Formula**:
+```
+RMSE = √(Σ(y_actual - y_pred)² / n)
+```
+
+**Step-by-Step Calculation Example**:
+
+| Day | Actual (MWh) | Predicted (MWh) | Error | Error² |
+|-----|--------------|-----------------|-------|--------|
+| 1 | 33,052 | 34,930 | -1,878 | 3,526,884 |
+| 2 | 32,788 | 33,717 | -929 | 863,041 |
+| 3 | 30,524 | 32,357 | -1,833 | 3,359,889 |
+| 4 | 32,978 | 31,868 | +1,110 | 1,232,100 |
+| 5 | 35,623 | 33,159 | +2,464 | 6,071,296 |
+
+**Calculation**:
+```
+Sum of squared errors = 3,526,884 + 863,041 + 3,359,889 + 1,232,100 + 6,071,296
+                      = 15,053,210
+
+Mean squared error (MSE) = 15,053,210 / 5 = 3,010,642
+
+RMSE = √3,010,642 = 1,735.12 MWh
+```
+
+**Why RMSE over MSE?**
+- MSE = 3,010,642 (in squared MWh² - hard to interpret)
+- RMSE = 1,735 MWh (same unit as target - easy to interpret)
+
+**Why Use RMSE for Energy Forecasting?**
+1. **Penalizes large errors**: A few big misses hurt more than many small ones
+2. **Operational relevance**: Large errors could cause blackouts or wasted generation
+3. **Interpretability**: Same unit as energy demand (MWh)
+
+**Interpretation of Our RMSE = 1,660.94 MWh**:
+- Average prediction error is about 1,661 MWh
+- Relative to average demand of ~32,000 MWh, this is ~5.2% error
+- Suitable for next-day operational planning
+
+---
+
+### Q44: Explain MAPE calculation with example and when it can be misleading.
+
+**Answer**:
+**Mean Absolute Percentage Error (MAPE)**:
+
+**Formula**:
+```
+MAPE = (Σ |y_actual - y_pred| / y_actual) × 100 / n
+```
+
+**Step-by-Step Calculation**:
+
+| Day | Actual | Predicted | Error | % Error |
+|-----|--------|-----------|-------|---------|
+| 1 | 33,052 | 34,930 | 1,878 | 5.68% |
+| 2 | 32,788 | 33,717 | 929 | 2.83% |
+| 3 | 30,524 | 32,357 | 1,833 | 6.01% |
+| 4 | 32,978 | 31,868 | 1,110 | 3.37% |
+| 5 | 35,623 | 33,159 | 2,464 | 6.92% |
+
+**Calculation**:
+```
+MAPE = (5.68 + 2.83 + 6.01 + 3.37 + 6.92) / 5
+     = 24.81 / 5
+     = 4.96%
+```
+
+**Our Model: MAPE = 4.32%**
+
+**Advantages of MAPE**:
+1. **Intuitive**: Easy for stakeholders to understand
+2. **Scale-independent**: Can compare across different projects
+3. **Business-friendly**: "We're within 4.32% on average"
+
+**When MAPE Can Be Misleading**:
+
+| Scenario | Problem | Example |
+|----------|---------|---------|
+| Zero or near-zero actual values | Division by small number → huge MAPE | Actual = 10, Pred = 15 → MAPE = 50% |
+| Asymmetric penalty | Over-prediction vs under-prediction treated equally | May not reflect business cost |
+| Different scales | MAPE varies with demand level | Low-demand periods have higher relative error |
+
+**Why MAPE Works for Our Project**:
+- Energy demand never approaches zero (~25,000-40,000 MWh range)
+- Business context treats over/under-prediction similarly
+- Demand is relatively stable, no extreme variations
+
+**Industry Benchmarks for MAPE**:
+| Domain | Good MAPE | Notes |
+|--------|-----------|-------|
+| Energy Forecasting | < 5% | Our 4.32% is good |
+| Retail Sales | < 10% | Higher variability |
+| Web Traffic | < 20% | Very unpredictable |
+| Manufacturing | < 3% | More controlled environment |
+
+---
+
+### Q45: What is R² and why is our R² = 0.90 considered good?
+
+**Answer**:
+**R-Squared (Coefficient of Determination)**:
+
+**Formula**:
+```
+R² = 1 - (SS_res / SS_tot)
+
+Where:
+SS_res = Σ(y_actual - y_pred)²     # Sum of squared residuals
+SS_tot = Σ(y_actual - ȳ)²          # Total sum of squares
+```
+
+**Visual Explanation**:
+```
+Actual values:     ●    ●  ●      ●   ●   ●   (varying demand)
+Mean line:         ───────────────────────── (ȳ = average)
+Model predictions:  ○    ○  ○      ○   ○   ○   (following pattern)
+
+SS_tot = Distance from actual points to mean line (total variance)
+SS_res = Distance from actual points to predicted points (unexplained variance)
+
+R² = 1 means: Model predictions perfectly match actual (SS_res = 0)
+R² = 0 means: Model is no better than just predicting the mean
+R² < 0 means: Model is worse than predicting the mean (very bad!)
+```
+
+**Numerical Example**:
+
+| Day | Actual | Mean (ȳ) | Predicted | (Actual - Mean)² | (Actual - Pred)² |
+|-----|--------|----------|-----------|------------------|------------------|
+| 1 | 33,052 | 32,000 | 34,930 | 1,106,704 | 3,526,884 |
+| 2 | 32,788 | 32,000 | 33,717 | 622,094 | 863,041 |
+| 3 | 30,524 | 32,000 | 32,357 | 2,185,576 | 3,359,889 |
+| 4 | 32,978 | 32,000 | 31,868 | 955,484 | 1,232,100 |
+| 5 | 35,623 | 32,000 | 33,159 | 13,122,129 | 6,071,296 |
+
+```
+SS_tot = Sum of (Actual - Mean)² = Total variance in demand
+SS_res = Sum of (Actual - Predicted)² = Variance not explained by model
+
+R² = 1 - (SS_res / SS_tot)
+   = 1 - (Unexplained / Total)
+   = Proportion of variance explained
+```
+
+**Why R² = 0.90 is Good for Energy Forecasting**:
+
+| R² Range | Interpretation | Quality |
+|----------|----------------|---------|
+| 0.95 - 1.00 | Excellent, very accurate predictions | May indicate overfitting |
+| 0.85 - 0.95 | Good, suitable for operational use | Our range ✓ |
+| 0.70 - 0.85 | Acceptable, useful but with limitations | May need improvement |
+| 0.50 - 0.70 | Poor, limited predictive value | Needs significant work |
+| < 0.50 | Very poor, not useful | Fundamental issues |
+
+**What the 10% Unexplained Means**:
+- Random noise in energy consumption
+- Missing features (e.g., unexpected events, outages)
+- Measurement errors in original data
+- Weather features limited to 2 cities
+- Some human behavior is inherently unpredictable
+
+**Adjusted R² (Bonus Knowledge)**:
+```
+Adjusted R² = 1 - ((1 - R²)(n - 1) / (n - p - 1))
+
+Where: n = number of samples, p = number of features
+```
+- Adjusts for number of features
+- Prevents artificial inflation from adding useless features
+- Used when comparing models with different feature counts
+
+---
+
+### Q46: Why did you use StandardScaler and not MinMaxScaler or RobustScaler?
+
+**Answer**:
+**Comparison of Scaling Methods**:
+
+| Scaler | Formula | Range | Best For |
+|--------|---------|-------|----------|
+| StandardScaler | (x - μ) / σ | ~[-3, 3] | Normal-ish distributions, linear models |
+| MinMaxScaler | (x - min) / (max - min) | [0, 1] | Neural networks, bounded data |
+| RobustScaler | (x - median) / IQR | Varies | Data with outliers |
+
+**Why StandardScaler for Ridge Regression**:
+
+1. **Ridge Regression Sensitivity**:
+   ```python
+   # Ridge minimizes: ||y - Xw||² + α||w||²
+
+   # If features have different scales:
+   # - Feature A: [0, 1000]  → large coefficient changes
+   # - Feature B: [0, 1]     → small coefficient changes
+
+   # Regularization (α) affects scaled features equally
+   ```
+
+2. **Our Feature Distribution**:
+   ```
+   demand_rolling_7:  [25,000 - 40,000]  → huge range
+   temp_mean:         [10 - 30]          → small range
+   is_weekend:        [0, 1]             → binary
+   day_of_week:       [0, 6]             → small integers
+   ```
+
+   Without scaling, demand features would dominate the model.
+
+3. **Centering Benefits Ridge**:
+   - StandardScaler centers data at mean = 0
+   - Makes regularization more effective
+   - Improves numerical stability
+
+**Why NOT MinMaxScaler**:
+- Compresses all features to [0, 1]
+- Sensitive to outliers (min/max determine scale)
+- Our data has some extreme values (holidays, special events)
+
+**Why NOT RobustScaler**:
+- Uses median and IQR, robust to outliers
+- Our data doesn't have significant outliers
+- Would work but not necessary
+
+**Code Implementation**:
+```python
+from sklearn.preprocessing import StandardScaler
+
+# Fit on training data only (prevent data leakage)
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)  # Use same scaler
+
+# Save scaler for deployment
+joblib.dump(scaler, 'models/scaler.joblib')
+```
+
+**Critical Mistake to Avoid**:
+```python
+# ❌ WRONG: Fit on all data (data leakage!)
+scaler.fit(X)  # Includes test data - cheating!
+X_scaled = scaler.transform(X)
+
+# ✓ CORRECT: Fit on train only
+scaler.fit(X_train)
+X_train_scaled = scaler.transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+```
+
+---
+
+### Q47: Walk through the Ridge Regression hyperparameter tuning process.
+
+**Answer**:
+**Ridge Regression Formula**:
+```
+Loss = ||y - Xw||² + α||w||²
+       ↑                  ↑
+    MSE term          L2 penalty (regularization)
+```
+
+**Hyperparameter α (alpha) Controls Regularization Strength**:
+
+| α Value | Effect | When to Use |
+|---------|--------|-------------|
+| α = 0 | No regularization (same as Linear Regression) | When no overfitting |
+| α small (0.01) | Weak regularization | Slight overfitting |
+| α medium (1.0) | Moderate regularization | Default, good starting point |
+| α large (100) | Strong regularization | High overfitting risk |
+
+**Our Tuning Process**:
+```python
+from sklearn.linear_model import Ridge
+from sklearn.model_selection import cross_val_score
+import numpy as np
+
+# Test different alpha values
+alphas = [0.01, 0.1, 1.0, 10.0, 100.0]
+results = []
+
+for alpha in alphas:
+    ridge = Ridge(alpha=alpha)
+    scores = cross_val_score(ridge, X_train_scaled, y_train,
+                            cv=5, scoring='neg_root_mean_squared_error')
+    results.append({
+        'alpha': alpha,
+        'mean_rmse': -scores.mean(),
+        'std_rmse': scores.std()
+    })
+
+# Results (example):
+# α=0.01:  RMSE = 1,680 ± 120
+# α=0.1:   RMSE = 1,665 ± 115
+# α=1.0:   RMSE = 1,662 ± 110  ← Best
+# α=10.0:  RMSE = 1,670 ± 112
+# α=100.0: RMSE = 1,720 ± 130  ← Underfitting (too much regularization)
+```
+
+**Visual Understanding**:
+```
+RMSE
+ ↑
+ |     ○
+ |   ○   ○
+ |  ○     ○
+ | ○       ○
+ |○         ○
+ +──────────────→ α
+ 0   1   10  100
+
+  ↑           ↑
+  Too little  Too much
+  regularization → underfitting
+```
+
+**Why α = 1.0 Worked Best**:
+1. **Balance**: Enough regularization to prevent overfitting, not so much to underfit
+2. **Default is often good**: sklearn's default α=1.0 worked well
+3. **Small dataset**: Strong regularization (high α) would lose too much information
+
+**Alternative: GridSearchCV**:
+```python
+from sklearn.model_selection import GridSearchCV
+
+param_grid = {'alpha': [0.01, 0.1, 1.0, 10.0, 100.0]}
+ridge = Ridge()
+grid_search = GridSearchCV(ridge, param_grid, cv=5,
+                          scoring='neg_root_mean_squared_error')
+grid_search.fit(X_train_scaled, y_train)
+
+print(f"Best alpha: {grid_search.best_params_}")
+print(f"Best RMSE: {-grid_search.best_score_}")
+```
+
+---
+
+### Q48: Explain why tree-based models (Random Forest, XGBoost) overfit on our dataset.
+
+**Answer**:
+**Evidence of Overfitting**:
+
+| Model | Train RMSE | Test RMSE | Gap | Diagnosis |
+|-------|------------|-----------|-----|-----------|
+| Ridge Regression | 1,620 | 1,661 | +41 | ✓ Good generalization |
+| Linear Regression | 1,618 | 1,663 | +45 | ✓ Good generalization |
+| Random Forest | 580 | 1,761 | +1,181 | ⚠ Overfitting! |
+| XGBoost | 420 | 1,965 | +1,545 | ⚠ Severe overfitting! |
+
+**Why Tree Models Overfit on Small Datasets**:
+
+1. **Memorization vs Generalization**:
+   ```
+   Decision Tree Logic:
+   - Each split divides data into smaller groups
+   - With 495 samples and many features, trees can memorize each sample
+   - No incentive to learn general patterns
+   ```
+
+2. **Feature-to-Sample Ratio**:
+   ```
+   Our dataset: 495 samples, 18 features
+
+   Rule of thumb:
+   - Need ~10 samples per feature for linear models
+   - Need ~100+ samples per feature for tree models (rough estimate)
+
+   Our ratio: 495/18 = 27.5 samples per feature
+   → Adequate for linear models
+   → Insufficient for complex tree ensembles
+   ```
+
+3. **Tree Model Flexibility**:
+   ```python
+   # Random Forest default in sklearn:
+   RandomForestRegressor(
+       n_estimators=100,    # 100 trees
+       max_depth=None,      # Trees grow until pure leaves!
+       min_samples_split=2, # Can split with just 2 samples
+       min_samples_leaf=1   # Leaves can have 1 sample
+   )
+
+   # This configuration can perfectly memorize training data
+   # But fails to generalize to test data
+   ```
+
+4. **Linear vs Non-Linear Relationships**:
+   ```
+   Our data relationship:
+   Energy Demand ≈ Linear function of lag features + weather
+
+   Linear models: Capture this directly
+   Tree models: Try to learn non-linear patterns that don't exist
+               → Learn noise instead of signal
+   ```
+
+**How to Fix Overfitting in Tree Models**:
+
+```python
+# Attempted fixes (still didn't beat Ridge):
+
+# Random Forest with constraints
+rf = RandomForestRegressor(
+    n_estimators=100,
+    max_depth=5,           # Limit tree depth
+    min_samples_split=10,   # Require more samples to split
+    min_samples_leaf=5,     # Require more samples per leaf
+    max_features='sqrt'     # Use subset of features
+)
+
+# XGBoost with regularization
+xgb = XGBRegressor(
+    n_estimators=100,
+    max_depth=3,
+    learning_rate=0.1,
+    reg_alpha=0.1,    # L1 regularization
+    reg_lambda=1.0,   # L2 regularization
+    subsample=0.8     # Use 80% of data per tree
+)
+```
+
+**Key Lesson**:
+> "More complex models are not always better. Match model complexity to data complexity."
+
+- Small dataset (495 samples) → Linear/Ridge is appropriate
+- Large dataset (100,000+ samples) → Tree models, neural networks viable
+- Linear relationships → Linear models sufficient
+
+---
+
+### Q49: How did you analyze residuals and what did you find?
+
+**Answer**:
+**Residual Analysis Process**:
+
+**Step 1: Calculate Residuals**
+```python
+residuals = y_test - y_pred
+# residuals = actual - predicted
+# Positive: underpredicted (model estimated too low)
+# Negative: overpredicted (model estimated too high)
+```
+
+**Step 2: Statistical Summary**
+```python
+residuals.describe()
+
+# Output:
+# count     99.00
+# mean       12.45    # Close to 0 → unbiased
+# std      1658.32    # Spread of errors
+# min     -4521.87    # Largest underprediction
+# 25%     -1102.34
+# 50%        5.67     # Median near 0
+# 75%     1098.45
+# max      4187.23    # Largest overprediction
+```
+
+**Step 3: Visual Analysis**
+
+| Plot | What to Look For | What We Found |
+|------|------------------|---------------|
+| Histogram | Normal (bell curve) distribution | Approximately normal, centered at 0 |
+| Residuals vs Predicted | Random scatter, no pattern | Mostly random, slight heteroscedasticity |
+| Residuals vs Time | No temporal pattern | No obvious time-based bias |
+| Q-Q Plot | Points on diagonal line | Close to diagonal, good normality |
+
+**Step 4: Interpretation**
+
+**Mean ≈ 0 (Good)**:
+```
+Mean = 12.45 MWh (vs average demand ~32,000 MWh)
+→ Model is unbiased
+→ Not systematically over or under-predicting
+```
+
+**Standard Deviation = 1,658 MWh**:
+```
+About 5% of average demand
+→ Typical prediction error
+→ Acceptable for operational planning
+```
+
+**Range [-4,522, +4,187] MWh**:
+```
+Largest errors ~4,500 MWh (~14% error)
+→ May correspond to unusual days (holidays, outages)
+→ Room for improvement with more features
+```
+
+**What Residuals Tell Us About Model Quality**:
+
+1. **Unbiased (mean ≈ 0)**: ✓ Good
+   - Model doesn't consistently over/under predict
+   - Captures overall demand level correctly
+
+2. **Normal distribution**: ✓ Good
+   - Errors are random, not systematic
+   - Validates regression assumptions
+
+3. **Homoscedasticity**: ⚠ Mostly good, slight issue
+   - Variance relatively constant across predictions
+   - Some higher variance at extreme demand levels
+
+4. **No autocorrelation**: ✓ Good
+   - Residuals don't show temporal patterns
+   - Model captured time-based patterns well
+
+**Potential Improvements Based on Residuals**:
+
+```python
+# Identify days with large residuals
+large_errors = df[abs(residuals) > 3000]
+
+# Check patterns:
+# - Are they holidays? → Improve holiday features
+# - Are they extreme weather? → Add weather interactions
+# - Are they weekends? → Improve weekend handling
+```
+
+---
+
+### Q50: How do you interpret the feature importance results?
+
+**Answer**:
+**Top 5 Features and Their Interpretation**:
+
+| Rank | Feature | Coefficient | Interpretation |
+|------|---------|-------------|----------------|
+| 1 | demand_rolling_7 | +0.45 | 7-day average is strongest predictor |
+| 2 | demand_lag_1 | +0.32 | Yesterday's demand predicts today |
+| 3 | demand_lag_7 | +0.28 | Same day last week pattern |
+| 4 | temp_mean | -0.15 | Higher temp → lower demand (Nepal context) |
+| 5 | day_of_week | +0.08 | Weekday/weekend pattern |
+
+**Why Lag Features Dominate**:
+
+```
+Energy Demand Has Strong Autocorrelation:
+
+Day N:     ████████████████████████ 32,000 MWh
+Day N+1:   █████████████████████████ 32,500 MWh  (similar)
+Day N+2:   ██████████████████████ 31,800 MWh    (similar)
+Day N+7:   ████████████████████████ 32,200 MWh  (weekly pattern)
+
+This means:
+- Yesterday's demand → Today's demand (short-term trend)
+- Last week same day → This week same day (weekly seasonality)
+- 7-day average → Medium-term trend
+```
+
+**Feature Importance from Ridge (Linear Model)**:
+```python
+# For linear models, importance = absolute coefficient value
+feature_importance = pd.DataFrame({
+    'feature': feature_names,
+    'coefficient': ridge_model.coef_,
+    'importance': abs(ridge_model.coef_)
+}).sort_values('importance', ascending=False)
+
+# Note: Coefficients are from standardized features
+# So they're directly comparable
+```
+
+**Feature Importance from Random Forest (for comparison)**:
+```python
+# Tree models provide impurity-based importance
+rf_importance = pd.DataFrame({
+    'feature': feature_names,
+    'importance': rf_model.feature_importances_
+}).sort_values('importance', ascending=False)
+
+# Results showed similar top features
+# Validates that lag features are truly important
+```
+
+**Why Temperature Has Negative Coefficient**:
+```
+In Nepal:
+- Summer: Hot weather → fans, ACs → higher demand? Not really...
+- Winter: Cold weather → heaters → higher demand!
+
+Nepal's context:
+- Limited AC penetration
+- Significant electric heating in winter
+- Higher demand in cold months
+
+So: Higher temp → Lower demand (heating reduces)
+```
+
+**Actionable Insights from Feature Importance**:
+
+1. **Short-term Forecasting (1-2 days)**:
+   - Focus on demand_lag_1
+   - Most recent demand is critical
+
+2. **Weekly Planning**:
+   - Use demand_lag_7 for day-of-week patterns
+   - demand_rolling_7 for trend
+
+3. **Weather Integration**:
+   - Temperature matters but less than lag features
+   - Consider adding more weather variables
+
+4. **Feature Engineering Priority**:
+   - More lag features (demand_lag_14, demand_lag_30)
+   - Rolling statistics (rolling_std, rolling_min, rolling_max)
+   - Temperature interactions (temp × is_weekend)
+
+---
+
+### Q51: What is the code structure for model evaluation?
+
+**Answer**:
+```python
+# ==========================================
+# COMPLETE MODEL EVALUATION CODE
+# ==========================================
+
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LinearRegression, Ridge
+from sklearn.ensemble import RandomForestRegressor
+from xgboost import XGBRegressor
+from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+import joblib
+import matplotlib.pyplot as plt
+
+# -------------------------------------------
+# STEP 1: Prepare Data
+# -------------------------------------------
+# Load preprocessed data
+df = pd.read_csv('data/processed/final_dataset.csv')
+
+# Separate features and target
+feature_cols = ['temp_mean', 'temp_max', 'temp_min', 'humidity',
+                'precipitation', 'windspeed', 'temp_range',
+                'day_of_week', 'month', 'day_of_year', 'week_of_year',
+                'quarter', 'is_weekend', 'is_holiday', 'season',
+                'demand_lag_1', 'demand_lag_7', 'demand_rolling_7']
+
+X = df[feature_cols]
+y = df['Energy_Requirement']  # Target variable
+
+# -------------------------------------------
+# STEP 2: Train/Test Split (Time-Series Aware)
+# -------------------------------------------
+# IMPORTANT: shuffle=False preserves temporal order
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, shuffle=False
+)
+
+print(f"Training samples: {len(X_train)}")
+print(f"Test samples: {len(X_test)}")
+
+# -------------------------------------------
+# STEP 3: Feature Scaling
+# -------------------------------------------
+# Fit scaler on training data only
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)  # Use same scaler
+
+# -------------------------------------------
+# STEP 4: Define Evaluation Function
+# -------------------------------------------
+def evaluate_model(model, X_train, y_train, X_test, y_test, model_name):
+    """
+    Train model and return evaluation metrics.
+    """
+    # Train
+    model.fit(X_train, y_train)
+
+    # Predict
+    y_train_pred = model.predict(X_train)
+    y_test_pred = model.predict(X_test)
+
+    # Calculate metrics
+    metrics = {
+        'Model': model_name,
+        'Train_RMSE': np.sqrt(mean_squared_error(y_train, y_train_pred)),
+        'Train_MAE': mean_absolute_error(y_train, y_train_pred),
+        'Train_R2': r2_score(y_train, y_train_pred),
+        'Test_RMSE': np.sqrt(mean_squared_error(y_test, y_test_pred)),
+        'Test_MAE': mean_absolute_error(y_test, y_test_pred),
+        'Test_R2': r2_score(y_test, y_test_pred)
+    }
+
+    # Calculate MAPE (handle zeros)
+    y_test_nonzero = y_test[y_test != 0]
+    y_pred_nonzero = y_test_pred[y_test != 0]
+    metrics['Test_MAPE'] = np.mean(np.abs(
+        (y_test_nonzero - y_pred_nonzero) / y_test_nonzero
+    )) * 100
+
+    return metrics, y_test_pred
+
+# -------------------------------------------
+# STEP 5: Train and Evaluate All Models
+# -------------------------------------------
+results = []
+predictions = {}
+
+# Define models
+models = {
+    'Linear Regression': LinearRegression(),
+    'Ridge Regression': Ridge(alpha=1.0),
+    'Random Forest': RandomForestRegressor(
+        n_estimators=100, max_depth=10, random_state=42
+    ),
+    'XGBoost': XGBRegressor(
+        n_estimators=100, max_depth=5, learning_rate=0.1, random_state=42
+    )
+}
+
+# Evaluate each model
+for name, model in models.items():
+    metrics, y_pred = evaluate_model(
+        model, X_train_scaled, y_train,
+        X_test_scaled, y_test, name
+    )
+    results.append(metrics)
+    predictions[name] = y_pred
+    print(f"{name}: Test RMSE = {metrics['Test_RMSE']:.2f}, "
+          f"Test R² = {metrics['Test_R2']:.4f}")
+
+# -------------------------------------------
+# STEP 6: Results Comparison
+# -------------------------------------------
+results_df = pd.DataFrame(results)
+results_df = results_df.sort_values('Test_RMSE')
+print("\n" + "="*60)
+print("MODEL COMPARISON")
+print("="*60)
+print(results_df[['Model', 'Test_RMSE', 'Test_MAE', 'Test_MAPE', 'Test_R2']])
+
+# -------------------------------------------
+# STEP 7: Select and Save Best Model
+# -------------------------------------------
+best_model_name = results_df.iloc[0]['Model']
+best_model = models[best_model_name]
+
+# Save model and scaler
+joblib.dump(best_model, 'models/best_model.joblib')
+joblib.dump(scaler, 'models/scaler.joblib')
+print(f"\nBest model ({best_model_name}) saved to models/best_model.joblib")
+
+# -------------------------------------------
+# STEP 8: Residual Analysis
+# -------------------------------------------
+best_predictions = predictions[best_model_name]
+residuals = y_test - best_predictions
+
+# Plot residual distribution
+plt.figure(figsize=(12, 4))
+
+plt.subplot(1, 3, 1)
+plt.hist(residuals, bins=30, edgecolor='black')
+plt.xlabel('Residuals (MWh)')
+plt.ylabel('Frequency')
+plt.title('Residual Distribution')
+
+plt.subplot(1, 3, 2)
+plt.scatter(best_predictions, residuals, alpha=0.5)
+plt.axhline(y=0, color='r', linestyle='--')
+plt.xlabel('Predicted Values')
+plt.ylabel('Residuals')
+plt.title('Residuals vs Predicted')
+
+plt.subplot(1, 3, 3)
+plt.scatter(y_test, best_predictions, alpha=0.5)
+plt.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], 'r--')
+plt.xlabel('Actual Values')
+plt.ylabel('Predicted Values')
+plt.title('Actual vs Predicted')
+
+plt.tight_layout()
+plt.savefig('reports/residual_analysis.png', dpi=300)
+plt.close()
+
+print("\nResidual analysis saved to reports/residual_analysis.png")
+```
+
+**Output Example**:
+```
+Training samples: 396
+Test samples: 99
+
+Linear Regression: Test RMSE = 1662.57, Test R² = 0.8989
+Ridge Regression: Test RMSE = 1660.94, Test R² = 0.8991
+Random Forest: Test RMSE = 1760.68, Test R² = 0.8866
+XGBoost: Test RMSE = 1964.87, Test R² = 0.8588
+
+============================================================
+MODEL COMPARISON
+============================================================
+              Model  Test_RMSE  Test_MAE  Test_MAPE  Test_R2
+    Ridge Regression    1660.94   1324.15       4.32  0.8991
+  Linear Regression    1662.57   1328.28       4.34  0.8989
+      Random Forest    1760.68   1396.45       4.55  0.8866
+            XGBoost    1964.87   1594.81       5.06  0.8588
+
+Best model (Ridge Regression) saved to models/best_model.joblib
+```
+
+---
+
+### Q52: How would you make predictions for a new day?
+
+**Answer**:
+```python
+# ==========================================
+# PREDICTION PIPELINE FOR NEW DATA
+# ==========================================
+
+import pandas as pd
+import numpy as np
+import joblib
+
+# Load saved model and scaler
+model = joblib.load('models/best_model.joblib')
+scaler = joblib.load('models/scaler.joblib')
+
+def predict_energy_demand(date, weather_forecast, historical_demand):
+    """
+    Predict energy demand for a given date.
+
+    Parameters:
+    -----------
+    date : str or datetime
+        Target date for prediction
+    weather_forecast : dict
+        {'temp_mean': float, 'temp_max': float, 'temp_min': float,
+         'humidity': float, 'precipitation': float, 'windspeed': float}
+    historical_demand : dict
+        {'demand_lag_1': float, 'demand_lag_7': float,
+         'demand_rolling_7': float}
+
+    Returns:
+    --------
+    float : Predicted energy demand in MWh
+    """
+
+    # Parse date
+    date = pd.to_datetime(date)
+
+    # Create feature dictionary
+    features = {
+        # Weather features
+        'temp_mean': weather_forecast['temp_mean'],
+        'temp_max': weather_forecast['temp_max'],
+        'temp_min': weather_forecast['temp_min'],
+        'humidity': weather_forecast['humidity'],
+        'precipitation': weather_forecast['precipitation'],
+        'windspeed': weather_forecast['windspeed'],
+        'temp_range': weather_forecast['temp_max'] - weather_forecast['temp_min'],
+
+        # Temporal features
+        'day_of_week': date.dayofweek,
+        'month': date.month,
+        'day_of_year': date.dayofyear,
+        'week_of_year': date.isocalendar().week,
+        'quarter': date.quarter,
+        'is_weekend': 1 if date.dayofweek >= 5 else 0,
+        'is_holiday': check_holiday(date),  # Custom function
+        'season': get_season(date.month),    # Custom function
+
+        # Lag features (from historical data)
+        'demand_lag_1': historical_demand['demand_lag_1'],
+        'demand_lag_7': historical_demand['demand_lag_7'],
+        'demand_rolling_7': historical_demand['demand_rolling_7']
+    }
+
+    # Convert to DataFrame
+    X_new = pd.DataFrame([features])
+
+    # Scale features using saved scaler
+    X_scaled = scaler.transform(X_new)
+
+    # Predict
+    prediction = model.predict(X_scaled)[0]
+
+    return prediction
+
+# -------------------------------------------
+# HELPER FUNCTIONS
+# -------------------------------------------
+
+def get_season(month):
+    """Convert month to season number."""
+    if month in [12, 1, 2]:
+        return 0  # Winter
+    elif month in [3, 4, 5]:
+        return 1  # Spring
+    elif month in [6, 7, 8]:
+        return 2  # Summer
+    else:
+        return 3  # Autumn
+
+def check_holiday(date):
+    """Check if date is a Nepal public holiday."""
+    # Load holiday list or use API
+    holidays = pd.read_csv('data/raw/holidays.csv')
+    return int(date in pd.to_datetime(holidays['date']).values)
+
+# -------------------------------------------
+# EXAMPLE USAGE
+# -------------------------------------------
+
+# Predict demand for August 24, 2024
+prediction = predict_energy_demand(
+    date='2024-08-24',
+    weather_forecast={
+        'temp_mean': 25.5,
+        'temp_max': 30.2,
+        'temp_min': 20.8,
+        'humidity': 72.0,
+        'precipitation': 5.0,
+        'windspeed': 3.5
+    },
+    historical_demand={
+        'demand_lag_1': 32000,     # Yesterday's demand
+        'demand_lag_7': 31500,     # Last week same day
+        'demand_rolling_7': 31800  # 7-day average
+    }
+)
+
+print(f"Predicted energy demand: {prediction:,.0f} MWh")
+```
+
+**Output**:
+```
+Predicted energy demand: 32,457 MWh
+```
+
+---
+
+## Scenario-Based Questions for Viva
+
+### Q53: If the model predicts 35,000 MWh but actual is 40,000 MWh, what could be wrong?
+
+**Answer**:
+**Systematic Underprediction Investigation**:
+
+1. **Check for Special Events**:
+   - Was it a holiday with unexpected high demand?
+   - Any major events (festivals, sports)?
+   - Industrial activity spike?
+
+2. **Weather Anomalies**:
+   - Extreme weather not in training data?
+   - Heatwave requiring extra cooling?
+   - Cold snap requiring heating?
+
+3. **Data Issues**:
+   - Was weather forecast accurate?
+   - Is historical demand data correct?
+   - Any sensor/reporting errors?
+
+4. **Model Limitations**:
+   - Training data didn't cover this scenario
+   - Model extrapolating beyond training range
+   - Missing important feature
+
+**Diagnostic Steps**:
+```python
+# Check if 40,000 MWh is within training range
+print(f"Training demand range: {y_train.min():.0f} - {y_train.max():.0f} MWh")
+# If 40,000 > max training value, model is extrapolating
+
+# Check feature values for this day
+print(f"Temperature: {X_test['temp_mean'].iloc[error_day]:.1f}")
+print(f"Demand lag 1: {X_test['demand_lag_1'].iloc[error_day]:.0f}")
+
+# Compare to similar historical days
+similar_days = df[df['temp_mean'].between(24, 26)]
+print(f"Similar temp days avg demand: {similar_days['Energy_Requirement'].mean():.0f}")
+```
+
+---
+
+### Q54: How would you improve the model if you had more time?
+
+**Answer**:
+
+| Improvement | Expected Impact | Effort |
+|-------------|-----------------|--------|
+| More historical data | Better pattern capture | Medium |
+| LSTM/GRU deep learning | Capture long-term dependencies | High |
+| Prophet for seasonality | Better holiday/season handling | Medium |
+| More weather stations | Spatial demand patterns | Medium |
+| Economic indicators | GDP, industrial activity | High |
+| Real-time integration | Live predictions | High |
+
+**Priority Order**:
+1. Collect more data (2-3 years minimum)
+2. Try Prophet with holiday effects
+3. Add more cities for weather
+4. Implement cross-validation for robust evaluation
+5. Create prediction intervals (uncertainty quantification)
+
+---
+
+### Q55: What would you do differently if you started this project again?
+
+**Answer**:
+
+| What We Did | What We'd Do Differently | Why |
+|-------------|------------------------|-----|
+| Used simple 80/20 split | Use TimeSeriesSplit cross-validation | More robust evaluation |
+| 2 weather stations | 5-7 weather stations across Nepal | Better spatial coverage |
+| Manual hyperparameter tuning | GridSearchCV or Optuna | Better model performance |
+| No prediction intervals | Add uncertainty quantification | Know confidence of predictions |
+| Single model comparison | Ensemble of models | Potentially better predictions |
+| Basic feature engineering | More lag features, interactions | Capture more patterns |
+
+---
+
+## Quick Reference Cheat Sheet for Viva
+
+### Key Numbers to Remember:
+- **Best Model**: Ridge Regression
+- **Test RMSE**: 1,660.94 MWh
+- **Test MAE**: 1,324.15 MWh
+- **Test MAPE**: 4.32%
+- **Test R²**: 0.8991 (89.91%)
+- **Training samples**: 396
+- **Test samples**: 99
+- **Total features**: 18
+- **Date range**: July 2022 - November 2023
+
+### Key Formulas:
+```
+RMSE = √(Σ(y_actual - y_pred)² / n)
+MAE  = Σ|y_actual - y_pred| / n
+MAPE = (Σ|y_actual - y_pred| / y_actual) × 100 / n
+R²   = 1 - (SS_res / SS_tot)
+```
+
+### Why Ridge Won:
+1. Small dataset (495 records)
+2. Linear relationships in data
+3. L2 regularization prevents overfitting
+4. Simpler models generalize better on small data
+
+### Top 3 Features:
+1. demand_rolling_7 (7-day average)
+2. demand_lag_1 (yesterday's demand)
+3. demand_lag_7 (same day last week)
